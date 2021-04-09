@@ -1,7 +1,10 @@
 package hust.cs.javacourse.search.index.impl;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import hust.cs.javacourse.search.index.AbstractPosting;
@@ -11,13 +14,20 @@ public class PostingList extends AbstractPostingList{
 
 	@Override
 	public void writeObject(ObjectOutputStream out) {
-		// TODO Auto-generated method stub
-		
+		try {
+			out.writeObject(this.list);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void readObject(ObjectInputStream in) {
-		// TODO Auto-generated method stub
+		try {
+			this.list = (List<AbstractPosting>)in.readObject();
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 		
 	}
 
@@ -31,8 +41,19 @@ public class PostingList extends AbstractPostingList{
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return null;
+		String ret;
+		if(this.list != null || this.list.isEmpty()) {
+			ret = "";
+		} else {
+			Iterator<AbstractPosting> iter = this.list.iterator();
+			StringBuffer str = new StringBuffer(iter.next().toString());
+			while(iter.hasNext()) {
+				str.append(" ");
+				str.append(iter.next().toString());
+			}
+			ret = str.toString();
+		}
+		return ret;
 	}
 
 	@Override
@@ -45,61 +66,62 @@ public class PostingList extends AbstractPostingList{
 
 	@Override
 	public AbstractPosting get(int index) {
-		return 
+		return this.list == null ? null : this.list.get(index);
 	}
 
 	@Override
 	public int indexOf(AbstractPosting posting) {
-		// TODO Auto-generated method stub
-		return 0;
+		return list.indexOf(posting);
 	}
 
 	@Override
 	public int indexOf(int docId) {
-		// TODO Auto-generated method stub
-		return 0;
+		int index = 0;
+		for(AbstractPosting p : this.list) {
+			if(p.getDocId() == docId) {
+				return index; 
+			}
+			index++;
+		}
+		return -1;
 	}
 
 	@Override
 	public boolean contains(AbstractPosting posting) {
-		// TODO Auto-generated method stub
-		return false;
+		return this.list.contains(posting);
 	}
 
 	@Override
 	public void remove(int index) {
-		// TODO Auto-generated method stub
+		this.list.remove(index);
 		
 	}
 
 	@Override
 	public void remove(AbstractPosting posting) {
-		// TODO Auto-generated method stub
+		this.list.remove(posting);
 		
 	}
 
 	@Override
 	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.list.size();
 	}
 
 	@Override
 	public void clear() {
-		// TODO Auto-generated method stub
+		this.list.clear();
 		
 	}
 
 	@Override
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
-		return false;
+		return this.list.isEmpty();
 	}
 
 	@Override
 	public void sort() {
-		// TODO Auto-generated method stub
-		
+		Collections.sort(this.list);
 	}
 	
 }

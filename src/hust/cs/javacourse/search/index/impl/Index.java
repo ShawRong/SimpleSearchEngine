@@ -1,12 +1,15 @@
 package hust.cs.javacourse.search.index.impl;
 
 import hust.cs.javacourse.search.index.AbstractDocument;
+import hust.cs.javacourse.search.index.AbstractTermTuple;
+import hust.cs.javacourse.search.index.AbstractPosting;
 import hust.cs.javacourse.search.index.AbstractIndex;
 import hust.cs.javacourse.search.index.AbstractPostingList;
 import hust.cs.javacourse.search.index.AbstractTerm;
 import java.io.File;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
@@ -30,7 +33,33 @@ public class Index extends AbstractIndex {
      */
     @Override
     public void addDocument(AbstractDocument document) {
-
+    	this.docIdToDocPathMapping.put(document.getDocId(), document.getDocPath());
+    	for(AbstractTermTuple tuple : document.getTuples()) {
+    		if(this.termToPostingListMapping.containsKey(tuple.term)) {
+    			AbstractPostingList postinglist = this.termToPostingListMapping.get(tuple.term);
+    			int index = postinglist.indexOf(document.getDocId());
+    			if (index != -1) {
+    				AbstractPosting posting = postinglist.get(index);
+    				posting.setFreq(posting.getFreq() + 1);
+    				posting.getPositions().add(tuple.curPos);
+    			} else {
+    				AbstractPosting posting = new Posting();
+    				posting.setDocId(document.getDocId());
+    				posting.setFreq(1);
+    				posting.getPositions().add(tuple.curPos);
+    				postinglist.add(posting);
+    			}
+    		} else {
+    			AbstractPostingList postinglist = new PostingList();
+    			this.termToPostingListMapping.put(tuple, postinglist);
+    			AbstractPosting posting = new Posting();
+    			posting.setDocId(document.getDocId());
+    			posting.setFreq(1);
+    			posting.getPositions().add(tuple.curPos);
+    			postinglist.add(posting);
+    		}
+    	}
+    	//optimize;
     }
 
     /**
